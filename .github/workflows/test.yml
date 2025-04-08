@@ -1,0 +1,20 @@
+name: Noir Test
+
+on: [push, pull_request]
+
+jobs:
+    test:
+        runs-on: macos-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Install Noir
+              run: |
+                  curl -L https://raw.githubusercontent.com/noir-lang/noirup/refs/heads/main/install | bash
+                  noirup
+            - name: Build circuits
+              run: |
+                  cd circuits
+                  sh ./scripts/generate-proof-artifacts.sh keccak
+            - name: Test Noir
+              run: |
+                  cargo test --all-features
