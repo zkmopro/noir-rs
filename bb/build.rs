@@ -1,12 +1,18 @@
-use std::{path::PathBuf, process::Command};
+use std::{env, path::PathBuf, process::Command};
 
 fn main() {
     // Notify Cargo to rerun this build script if `build.rs` changes.
     println!("cargo:rerun-if-changed=build.rs");
 
+    let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
+
     // Add the library search path for Rust to find during linking.
     let manifest_dir = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
-    let lib_dir = manifest_dir.join("lib");
+    let lib_dir;
+    if !(target_os == "macos" || target_os == "ios") {
+        panic!("Unsupported target OS: {}", target_os);
+    }
+    lib_dir = manifest_dir.join(target_os).join("lib");
     println!("cargo:rustc-link-search={}", lib_dir.display());
 
     // Link the `barretenberg` static library.
@@ -25,5 +31,4 @@ fn main() {
         .args(&["copy-headers.sh", &"./include"])
         .output()
         .unwrap();
-
 }

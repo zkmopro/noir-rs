@@ -18,3 +18,6 @@ jobs:
             - name: Test Noir
               run: |
                   cargo test --all-features
+            - name: Build for iOS
+              run: |
+                  cargo build --target aarch64-apple-ios
