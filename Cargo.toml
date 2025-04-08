@@ -1,0 +1,3 @@
+[workspace]
+members = ["bb", "noir"]
+resolver = "2"

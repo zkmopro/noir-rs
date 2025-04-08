@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "crates/recursed", 
+    "crates/recursive",
+    "crates/product",
+    "crates/keccak"
+]

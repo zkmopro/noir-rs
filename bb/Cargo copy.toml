@@ -1,0 +1,17 @@
+[package]
+name = "bb_rs"
+version = "0.82.2"
+edition = "2021"
+authors = ["Bartosz Nowak", "Théo Madzou"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+thiserror = "1.0.58"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+num-bigint = "0.4"
+
+[build-dependencies]
+bindgen = "0.71.1"
+cmake = "0.1.50"
