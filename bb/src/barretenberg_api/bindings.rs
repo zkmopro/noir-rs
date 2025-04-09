@@ -15,12 +15,12 @@ extern "C" {
 extern "C" {
     pub fn pedersen_hash_buffer(input_buffer: *const u8, hash_index: *const u32, output: *mut u8);
 }
-extern "C" {
-    pub fn poseidon_hash(inputs_buffer: *const u8, output: *mut u8);
-}
-extern "C" {
-    pub fn poseidon_hashes(inputs_buffer: *const u8, output: *mut u8);
-}
+// extern "C" {
+//     pub fn poseidon_hash(inputs_buffer: *const u8, output: *mut u8);
+// }
+// extern "C" {
+//     pub fn poseidon_hashes(inputs_buffer: *const u8, output: *mut u8);
+// }
 extern "C" {
     pub fn blake2s(data: *const u8, out: *mut u8);
 }
