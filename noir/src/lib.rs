@@ -1,5 +1,5 @@
 pub use acir::*;
-pub use acvm::*;
+// pub use acvm::*;
 
 pub mod execute;
 pub mod witness;

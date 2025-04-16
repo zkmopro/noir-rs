@@ -7,8 +7,8 @@ edition = "2021"
 
 [dependencies]
 acir = { git = "https://github.com/noir-lang/noir.git", tag = "v1.0.0-beta.3", package = "acir" }
-acvm = { git = "https://github.com/noir-lang/noir.git", tag = "v1.0.0-beta.3", package = "acvm" }
-acvm_blackbox_solver = { git = "https://github.com/noir-lang/noir.git", tag = "v1.0.0-beta.3", package = "acvm_blackbox_solver" }
+# acvm = { git = "https://github.com/noir-lang/noir.git", tag = "v1.0.0-beta.3", package = "acvm" }
+# acvm_blackbox_solver = { git = "https://github.com/noir-lang/noir.git", tag = "v1.0.0-beta.3", package = "acvm_blackbox_solver" }
 base64 = "0.22.0"
 bincode = "1.3.3"
 bn254_blackbox_solver = { git = "https://github.com/noir-lang/noir.git", tag = "v1.0.0-beta.3", package = "bn254_blackbox_solver" }

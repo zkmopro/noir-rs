@@ -1671,8 +1671,6 @@ name = "noir"
 version = "0.1.0"
 dependencies = [
  "acir",
- "acvm",
- "acvm_blackbox_solver",
  "base64 0.22.1",
  "bb",
  "bincode",
