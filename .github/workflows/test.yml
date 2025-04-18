@@ -21,7 +21,7 @@ jobs:
                   sh ./scripts/generate-proof-artifacts.sh keccak
             - name: Test Noir
               run: |
-                  cargo test --features --all-features 
+                  cargo test --release --all-features 
     test:
         runs-on: macos-latest
         steps:
