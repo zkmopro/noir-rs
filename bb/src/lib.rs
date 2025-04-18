@@ -3,6 +3,7 @@ use tracing::debug;
 
 pub mod barretenberg_api;
 
+#[cfg(not(target_os = "linux"))]
 #[no_mangle]
 extern "C" fn logstr(char_ptr: *const c_char) {
     let c_str = unsafe { CStr::from_ptr(char_ptr) };
