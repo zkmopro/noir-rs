@@ -40,7 +40,7 @@ fn main() {
 
     // Add the library search path for Rust to find during linking.
     let lib_dir;
-    if !(target_os == "macos" || target_os == "ios" || target_os == "android") {
+    if !(target_os == "macos" || target_os == "ios" || target_os == "android" || target_os == "linux") {
         panic!("Unsupported target OS: {}", target_os);
     }
     lib_dir = absolute_lib_path.join("lib");
