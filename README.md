@@ -1,55 +1,24 @@
 # Noir-rs
 
-**Noir‑rs** is a Rust workspace that turns Noir circuits into Rust crates and (optionally) links the Barretenberg prover for blazing‑fast Ultra‑Honk proofs. With one command from the **mopro CLI**, it can generate Swift and Kotlin bindings so the **same circuit runs natively on iOS and Android** with zero glue code required.
+**Noir‑rs** is a Rust crate that turns Noir circuits into Rust and (optionally) links the Barretenberg prover for Ultra‑Honk proofs. It works on macOS, Linux, iOS (aarch64‑apple‑ios), and Android (aarch64‑linux‑android).
 
 ## Installation
-
-Add the crate to your project directly from GitHub:
 
 ```toml
 # Cargo.toml
 [dependencies]
 noir = { git = "https://github.com/zkmopro/noir-rs", features = ["barretenberg"] }
 
-# For Android builds also enable android-compat:
-
-noir = { git = "https://github.com/zkmopro/noir-rs",
-         features = ["barretenberg", "android-compat"] }
+# For Android add the `android-compat` feature:
+noir = { git = "https://github.com/zkmopro/noir-rs", features = ["barretenberg", "android-compat"] }
 ```
 
-The workspace layout lets you keep Barretenberg optional while still using pure-Rust back-ends where they exist.
+## Platform Support
 
-## Build the Bindings
-
-We use the mopro CLI to generate Noir-rs bindings for mobile apps. You can build these bindings in `debug` or `release` mode using the interactive CLI. If you haven’t installed the CLI yet, please refer to the [zkmopro docs](https://zkmopro.org/docs/getting-started/#1-install-cli).
-
-### iOS
-
-Run
-
-```sh
-mopro build
-```
-
-and select `aarch64-apple-ios`
-
-### Android
-
-Activate `android-compat` feature in [Cargo.toml](./noir/Cargo.toml).
-
-```diff
-- noir = { git = "https://github.com/zkmopro/noir-rs", features = ["barretenberg"] }
-+ noir = { git = "https://github.com/zkmopro/noir-rs", features = ["barretenberg", "android-compat"] }
-```
-
-Run
-
-```sh
-mopro build
-```
-
-and select `aarch64-linux-android`
-
+- macOS
+- Linux (x86‑64)
+- iOS (aarch64‑apple‑ios)
+- Android (aarch64‑linux‑android)
 
 ## Quick Start
 
@@ -83,10 +52,6 @@ fn main() {
     println!("✔ proof valid? {isValid}");
 }
 ```
-
-To create APIs for your mobile applications that leverage above Noir functionalities, you can use `mopro init` to initialize the adapter and follow the current guidance to integrate `noir-rs` into it.
-
-Once it has been built, you can scaffold a mobile app that runs the example above, using the `mopro create` command as described in the [zkmopro docs](https://zkmopro.org/docs/getting-started/#4-create-templates).
 
 ## Community
 
