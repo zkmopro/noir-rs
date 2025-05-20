@@ -45,8 +45,8 @@ jobs:
                   cargo test --all-features
             - name: Build for iOS
               run: |
-                  cargo build --target aarch64-apple-ios --all-features
+                  cargo build --target aarch64-apple-ios --features ios-build
             - name: Build for Android
               run: |
                   cargo install cargo-ndk
-                  cargo ndk -t arm64-v8a build --all-features
+                  cargo ndk -t arm64-v8a build --features android-build

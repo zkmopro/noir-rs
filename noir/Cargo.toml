@@ -31,11 +31,14 @@ openssl = { version = "0.10", features = ["vendored"], optional = true }
 default = []
 barretenberg = ["bb"]
 android-compat = ["openssl"]
+srs-downloader = ["barretenberg"]
+ios-build = ["barretenberg"]
+android-build = ["barretenberg", "openssl"]
 
 [[bin]]
 name = "srs_downloader"
 path = "src/bin/srs_downloader.rs"
-required-features = ["barretenberg"]
+required-features = ["srs-downloader"]
 
 [dev-dependencies]
 tempfile = "3.8.1"
