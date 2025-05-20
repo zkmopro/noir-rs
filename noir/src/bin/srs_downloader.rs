@@ -83,3 +83,126 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::File;
+    use std::io::Write;
+    use tempfile::tempdir;
+
+    fn create_args(circuit_path: Option<&str>, output_path: Option<&str>) -> Args {
+        Args {
+            circuit_path: circuit_path.map(String::from),
+            output_path: output_path.map(String::from),
+        }
+    }
+    
+    #[test]
+    fn test_args_parsing_defaults() {
+        let args = create_args(None, None);
+        assert_eq!(args.circuit_path, None);
+        assert_eq!(args.output_path, None);
+    }
+
+    #[test]
+    fn test_args_parsing_circuit_path_only() {
+        let args = create_args(Some("test.json"), None);
+        assert_eq!(args.circuit_path, Some("test.json".to_string()));
+        assert_eq!(args.output_path, None);
+    }
+
+    #[test]
+    fn test_args_parsing_output_path_only() {
+        let args = create_args(None, Some("output/srs.srs"));
+        assert_eq!(args.circuit_path, None);
+        assert_eq!(args.output_path, Some("output/srs.srs".to_string()));
+    }
+
+    #[test]
+    fn test_args_parsing_both_paths() {
+        let args = create_args(Some("test.json"), Some("output/srs.srs"));
+        assert_eq!(args.circuit_path, Some("test.json".to_string()));
+        assert_eq!(args.output_path, Some("output/srs.srs".to_string()));
+    }
+    
+    #[test]
+    fn test_save_path_default_no_circuit() {
+        let args = create_args(None, None);
+        let circuit_name = "default_18";
+        let expected_path = PathBuf::from(DEFAULT_SRS_DIR).join(format!("{}.srs", circuit_name));
+        
+        let save_path_buf: PathBuf = match &args.output_path {
+            Some(path_str) => PathBuf::from(path_str),
+            None => {
+                let mut path = PathBuf::from(DEFAULT_SRS_DIR);
+                path.push(format!("{}.srs", circuit_name));
+                path
+            }
+        };
+        assert_eq!(save_path_buf, expected_path);
+    }
+
+    #[test]
+    fn test_save_path_default_with_circuit() {
+        let temp_dir = tempdir().unwrap();
+        let circuit_file_name = "my_circuit.json";
+        let dummy_circuit_path = temp_dir.path().join(circuit_file_name);
+        let mut file = File::create(&dummy_circuit_path).unwrap();
+        writeln!(file, "{{\"bytecode\": \"0x010203\"}}").unwrap();
+
+        let args = create_args(Some(dummy_circuit_path.to_str().unwrap()), None);
+        
+        let circuit_file_path = Path::new(args.circuit_path.as_ref().unwrap());
+        let circuit_name_for_path = circuit_file_path.file_stem().and_then(|s| s.to_str()).unwrap_or("default_circuit").to_string();
+
+        let expected_path = PathBuf::from(DEFAULT_SRS_DIR).join(format!("{}.srs", circuit_name_for_path));
+
+        let save_path_buf: PathBuf = match &args.output_path {
+            Some(path_str) => PathBuf::from(path_str),
+            None => {
+                let mut path = PathBuf::from(DEFAULT_SRS_DIR);
+                path.push(format!("{}.srs", circuit_name_for_path));
+                path
+            }
+        };
+        assert_eq!(save_path_buf, expected_path);
+        temp_dir.close().unwrap();
+    }
+
+    #[test]
+    fn test_save_path_custom_output() {
+        let args = create_args(None, Some("custom/path/srs_file.srs"));
+        let circuit_name = "any_circuit_name";
+        let expected_path = PathBuf::from("custom/path/srs_file.srs");
+
+        let save_path_buf: PathBuf = match &args.output_path {
+            Some(path_str) => PathBuf::from(path_str),
+            None => {
+                let mut path = PathBuf::from(DEFAULT_SRS_DIR);
+                path.push(format!("{}.srs", circuit_name));
+                path
+            }
+        };
+        assert_eq!(save_path_buf, expected_path);
+    }
+
+    #[test]
+    fn test_directory_creation_for_save_path() {
+        let temp_dir = tempdir().unwrap();
+        let target_srs_dir = temp_dir.path().join("custom_srs_output");
+        let target_srs_path = target_srs_dir.join("test_srs.srs");
+
+        assert!(!target_srs_dir.exists());
+
+        let save_path_buf = target_srs_path.clone();
+
+        if let Some(parent) = save_path_buf.parent() {
+            if !parent.exists() {
+                fs::create_dir_all(parent).expect("Test: Failed to create parent directory");
+            }
+        }
+        assert!(target_srs_dir.exists());
+        temp_dir.close().unwrap();
+    }
+}

@@ -36,3 +36,6 @@ android-compat = ["openssl"]
 name = "srs_downloader"
 path = "src/bin/srs_downloader.rs"
 required-features = ["barretenberg"]
+
+[dev-dependencies]
+tempfile = "3.8.1"
