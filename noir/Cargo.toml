@@ -21,6 +21,7 @@ thiserror = "1.0.58"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 serde_json = "1.0.125"
+clap = { version = "4.4.8", features = ["derive"] }
 
 # Optional dependencies
 bb = { path = "../bb", optional = true }
@@ -30,3 +31,14 @@ openssl = { version = "0.10", features = ["vendored"], optional = true }
 default = []
 barretenberg = ["bb"]
 android-compat = ["openssl"]
+srs-downloader = ["barretenberg"]
+ios-build = ["barretenberg"]
+android-build = ["barretenberg", "openssl"]
+
+[[bin]]
+name = "srs_downloader"
+path = "src/bin/srs_downloader.rs"
+required-features = ["srs-downloader"]
+
+[dev-dependencies]
+tempfile = "3.8.1"
