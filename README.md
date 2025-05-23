@@ -17,8 +17,14 @@ noir = { git = "https://github.com/zkmopro/noir-rs", features = ["barretenberg",
 
 - macOS
 - Linux (x86‑64)
-- iOS (aarch64‑apple‑ios)
-- Android (aarch64‑linux‑android)
+- iOS
+  - aarch64‑apple‑ios
+  - aarch64-apple-ios-sim
+  - x86_64-apple-ios
+- Android
+  - aarch64‑linux‑android
+  - x86_64-linux-android
+  - armv7-linux-androideabi
 
 ## Downloading SRS (Structured Reference String)
 
@@ -47,6 +53,7 @@ This will download the SRS and save it to `./srs_cache/default_18.srs` by defaul
 **Custom Output Path:**
 
 You can specify a custom output path for the downloaded SRS file using the `-o` flag:
+
 ```sh
 # For a specific circuit
 cargo run --bin srs_downloader --features srs-downloader -- -c path/to/your/circuit.json -o /custom/path/to/srs_file.srs
@@ -54,11 +61,13 @@ cargo run --bin srs_downloader --features srs-downloader -- -c path/to/your/circ
 # For a default SRS
 cargo run --bin srs_downloader --features srs-downloader -- -o /custom/path/to/default.srs
 ```
+
 The tool will automatically create parent directories if they don't exist.
 
 ## Quick Start
 
 Below is a minimal `a * b = res` circuit proof. Compile your circuit with nargo compile, copy the bytecode string into BYTECODE, then:
+
 ```rs
 use noir::{
     barretenberg::{
@@ -75,7 +84,7 @@ const BYTECODE: &str = "...";      // output of `nargo compile`
 fn main() {
     /** Download SRS via `srs_downloader`:
      * - Circuit-specific (`-c path/to/my_circuit.json`): `./srs_cache/my_circuit.srs`
-     * - Default (no `-c`): `./srs_cache/default_18.srs` 
+     * - Default (no `-c`): `./srs_cache/default_18.srs`
      */
 
     // Update srs_path to the location of your downloaded SRS file.
@@ -97,8 +106,8 @@ fn main() {
 
 ## Community
 
--   X account: <a href="https://twitter.com/zkmopro"><img src="https://img.shields.io/twitter/follow/zkmopro?style=flat-square&logo=x&label=zkmopro"></a>
--   Telegram group: <a href="https://t.me/zkmopro"><img src="https://img.shields.io/badge/telegram-@zkmopro-blue.svg?style=flat-square&logo=telegram"></a>
+- X account: <a href="https://twitter.com/zkmopro"><img src="https://img.shields.io/twitter/follow/zkmopro?style=flat-square&logo=x&label=zkmopro"></a>
+- Telegram group: <a href="https://t.me/zkmopro"><img src="https://img.shields.io/badge/telegram-@zkmopro-blue.svg?style=flat-square&logo=telegram"></a>
 
 ## Acknowledgements
 

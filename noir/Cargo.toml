@@ -15,7 +15,7 @@ bn254_blackbox_solver = { git = "https://github.com/noir-lang/noir.git", tag = "
 flate2 = "1.0.28"
 hex = "0.4.3"
 nargo = { git = "https://github.com/noir-lang/noir.git", tag = "v1.0.0-beta.3", package = "nargo" }
-reqwest = { version = "0.12.1", features = ["blocking"] }
+reqwest = { version = "0.12.1", default-features = false, features = ["json", "rustls-tls", "blocking"] }
 serde = "1.0.197"
 thiserror = "1.0.58"
 tracing = "0.1"
