@@ -24,7 +24,6 @@ noir = { git = "https://github.com/zkmopro/noir-rs", features = ["barretenberg",
 - Android
   - aarch64‑linux‑android
   - x86_64-linux-android
-  - armv7-linux-androideabi
 
 ## Downloading SRS (Structured Reference String)
 
