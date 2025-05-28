@@ -9,8 +9,8 @@ if [ -z $OUT_DIR ]; then
     exit 1
 fi
 # TARGET is specified by the rust build environment
-if [ -z $CARGO_CFG_TARGET_OS ]; then
-    echo "CARGO_CFG_TARGET_OS not specified"
+if [ -z $TARGET ]; then
+    echo "TARGET not specified"
     exit 1
 fi
 BUILD_DIR=$OUT_DIR/bb
@@ -18,13 +18,13 @@ mkdir -p $BUILD_DIR
 
 download_and_unzip() {
     local target="$1"
-    local zip_file="$BUILD_DIR/$target.zip"
+    local zip_file="$BUILD_DIR/$target.tar.gz"
     
     echo "Downloading $target..."
     
     # Download file with error handling
-    if ! curl -L -o "$zip_file" "https://bb.zkmopro.org/bb-$target.tar.gz"; then
-        echo "Failed to download $target.zip"
+    if ! curl -L -o "$zip_file" "https://bb.zkmopro.org/$target.tar.gz"; then
+        echo "Failed to download $target.tar.gz"
         return 1  # Return failure status
     fi
     
@@ -36,13 +36,17 @@ download_and_unzip() {
         return 1
     fi
     
-    echo "✅ Successfully downloaded and extracted $target.zip"
+    echo "✅ Successfully downloaded and extracted $target.tar.gz"
 }
 
 # Try downloading the full target
-if ! download_and_unzip "$CARGO_CFG_TARGET_OS"; then
+if ! download_and_unzip "$TARGET"; then
+    echo "Retrying with local architecture..."
     
-    echo "Download failed for $CARGO_CFG_TARGET_OS"
-    exit 1  # Exit the script with failure
+    local_arch=$(echo "$TARGET" | cut -d'-' -f1)
     
+    if ! download_and_unzip "$local_arch"; then
+        echo "Download failed for both $TARGET and $local_arch"
+        exit 1  # Exit the script with failure
+    fi
 fi

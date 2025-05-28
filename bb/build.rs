@@ -5,17 +5,30 @@ use std::{
 };
 
 const BB_DOWNLOAD_SCRIPT: &str = include_str!("./download_bb.sh");
+const TARGET_LIST: [&str; 7] = [
+    "aarch64-apple-darwin",
+    "aarch64-apple-ios-sim",
+    "aarch64-apple-ios",
+    "aarch64-linux-android",
+    "x86_64-apple-ios",
+    "x86_64-linux-android",
+    "x86_64", // linux architecture
+];
 
 fn main() {
     // Notify Cargo to rerun this build script if `build.rs` changes.
     println!("cargo:rerun-if-changed=build.rs");
 
-    let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
-    let out_dir = env::var("OUT_DIR").unwrap();
+    let target = env::var("TARGET").expect("TARGET not set");
+    let out_dir = env::var("OUT_DIR").expect("OUT_DIR not set");
+    let arch = target
+        .split('-')
+        .next()
+        .expect("Architecture cannot be parsed");
 
     // Try to list contents of the target directory
     let bb_path = Path::new(&out_dir).join(Path::new("bb"));
-    // If the rapidsnark repo is not downloaded, download it
+    // If the bb path is not downloaded, download it
     if !bb_path.exists() {
         let bb_script_path = Path::new(&out_dir).join(Path::new("download_bb.sh"));
         fs::write(&bb_script_path, BB_DOWNLOAD_SCRIPT).expect("Failed to write build script");
@@ -32,16 +45,16 @@ fn main() {
             panic!("Failed to wait for bb download");
         }
     }
-    let absolute_lib_path = if bb_path.join(&target_os).exists() {
-        bb_path.join(&target_os)
+    let absolute_lib_path = if bb_path.join(&target).exists() {
+        bb_path.join(&target)
     } else {
-        bb_path.join(&target_os)
+        bb_path.join(&arch)
     };
 
     // Add the library search path for Rust to find during linking.
     let lib_dir;
-    if !(target_os == "macos" || target_os == "ios" || target_os == "android" || target_os == "linux") {
-        panic!("Unsupported target OS: {}", target_os);
+    if !TARGET_LIST.contains(&target.as_str()) {
+        panic!("Unsupported target: {}", target);
     }
     lib_dir = absolute_lib_path.join("lib");
     println!("cargo:rustc-link-search={}", lib_dir.display());
@@ -68,7 +81,6 @@ fn main() {
         android();
     }
 }
-
 
 fn android() {
     println!("cargo:rustc-link-lib=c++_shared");
