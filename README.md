@@ -15,10 +15,15 @@ noir = { git = "https://github.com/zkmopro/noir-rs", features = ["barretenberg",
 
 ## Platform Support
 
-- macOS
-- Linux (x86‑64)
-- iOS (aarch64‑apple‑ios)
-- Android (aarch64‑linux‑android)
+-   macOS
+-   Linux (x86‑64)
+-   iOS
+    -   aarch64‑apple‑ios
+    -   aarch64-apple-ios-sim
+    -   x86_64-apple-ios
+-   Android
+    -   aarch64‑linux‑android
+    -   x86_64-linux-android
 
 ## Downloading SRS (Structured Reference String)
 
@@ -47,6 +52,7 @@ This will download the SRS and save it to `./srs_cache/default_18.srs` by defaul
 **Custom Output Path:**
 
 You can specify a custom output path for the downloaded SRS file using the `-o` flag:
+
 ```sh
 # For a specific circuit
 cargo run --bin srs_downloader --features srs-downloader -- -c path/to/your/circuit.json -o /custom/path/to/srs_file.srs
@@ -54,11 +60,13 @@ cargo run --bin srs_downloader --features srs-downloader -- -c path/to/your/circ
 # For a default SRS
 cargo run --bin srs_downloader --features srs-downloader -- -o /custom/path/to/default.srs
 ```
+
 The tool will automatically create parent directories if they don't exist.
 
 ## Quick Start
 
 Below is a minimal `a * b = res` circuit proof. Compile your circuit with nargo compile, copy the bytecode string into BYTECODE, then:
+
 ```rs
 use noir::{
     barretenberg::{
@@ -70,28 +78,35 @@ use noir::{
     witness::from_vec_str_to_witness_map,
 };
 
-const BYTECODE: &str = "...";      // output of `nargo compile`
+const BYTECODE: &str = "H4sIAAAAAAAA/62QQQqAMAwErfigpEna5OZXLLb/f4KKLZbiTQdCQg7Dsm66mc9x00O717rhG9ico5cgMOfoMxJu4C2pAEsKioqisnslysoaLVkEQ6aMRYxKFc//ZYQr29L10XfhXv4jB52E+OpMAQAA";    // output of `nargo compile`
 
 fn main() {
-    /** Download SRS via `srs_downloader`:
-     * - Circuit-specific (`-c path/to/my_circuit.json`): `./srs_cache/my_circuit.srs`
-     * - Default (no `-c`): `./srs_cache/default_18.srs` 
-     */
+    /// Download SRS via `srs_downloader`:
+    /// - Circuit-specific (`-c path/to/my_circuit.json`): `./srs_cache/my_circuit.srs`
+    /// - Default (no `-c`): `./srs_cache/default_18.srs`
+    ///
 
-    // Update srs_path to the location of your downloaded SRS file.
-    let srs_path = "./srs_cache/my_circuit.srs";
-    setup_srs_from_bytecode(BYTECODE, Some(srs_path), false).unwrap();
+    // 1. Update srs_path to the location of your downloaded SRS file.
+    // (Option 1)
+    // let srs_path = "./srs_cache/my_circuit.srs";
+    // setup_srs_from_bytecode(BYTECODE, Some(srs_path), false).unwrap();
+
+    // (Option 2)
+    // Alternatively, if you know the circuit size, you can use the following function
+    // Assuming the circuit size is 40 here
+    setup_srs_from_bytecode(BYTECODE, None, false).unwrap();
+    setup_srs(40, None).unwrap();
 
     // 2. Witness: a = 5, b = 6, res = 30
     let witness = from_vec_str_to_witness_map(vec!["5", "6", "0x1e"]).unwrap();
 
     // 3. Prove
-    let proof = prove_ultra_honk(BYTECODE, witness).unwrap();
+    let proof = prove_ultra_honk(BYTECODE, witness, false).unwrap();
 
     // 4. Verify
-    let vk = get_honk_verification_key(BYTECODE).unwrap();
-    let isValid = verify_ultra_honk(proof, vk).unwrap();
-    println!("✔ proof valid? {isValid}");
+    let vk = get_honk_verification_key(BYTECODE, false).unwrap();
+    let is_valid = verify_ultra_honk(proof, vk).unwrap();
+    println!("✔ proof valid? {:?}", is_valid);
 }
 ```
 
