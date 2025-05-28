@@ -53,7 +53,7 @@ fn main() {
 
     // Add the library search path for Rust to find during linking.
     let lib_dir;
-    if !TARGET_LIST.contains(&target.as_str()) {
+    if !(TARGET_LIST.contains(&target.as_str()) || TARGET_LIST.contains(&arch)) {
         panic!("Unsupported target: {}", target);
     }
     lib_dir = absolute_lib_path.join("lib");
