@@ -1613,6 +1613,7 @@ dependencies = [
  "acvm",
  "acvm_blackbox_solver",
  "base64 0.22.1",
+ "base64ct",
  "bb",
  "bincode",
  "bn254_blackbox_solver",
