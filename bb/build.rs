@@ -5,14 +5,13 @@ use std::{
 };
 
 const BB_DOWNLOAD_SCRIPT: &str = include_str!("./download_bb.sh");
-const TARGET_LIST: [&str; 7] = [
+const TARGET_LIST: [&str; 6] = [
     "aarch64-apple-darwin",
     "aarch64-apple-ios-sim",
     "aarch64-apple-ios",
     "aarch64-linux-android",
     "x86_64-apple-ios",
     "x86_64-linux-android",
-    "x86_64", // linux architecture
 ];
 
 fn main() {

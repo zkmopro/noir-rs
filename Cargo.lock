@@ -369,7 +369,7 @@ checksum = "89e25b6adfb930f02d1981565a6e5d9c547ac15a96606256d3b59040e5cd4ca3"
 
 [[package]]
 name = "bb"
-version = "0.1.0"
+version = "0.82.2"
 dependencies = [
  "num-bigint",
  "thiserror 1.0.69",
@@ -1607,7 +1607,7 @@ dependencies = [
 
 [[package]]
 name = "noir"
-version = "0.1.0"
+version = "1.0.0-beta.3-2"
 dependencies = [
  "acir",
  "acvm",
