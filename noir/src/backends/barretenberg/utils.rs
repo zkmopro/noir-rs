@@ -1,5 +1,5 @@
 use bb::barretenberg_api::acir::{
-    acir_get_honk_verification_key, acir_vk_as_fields_ultra_honk, get_circuit_sizes,
+    acir_get_honk_verification_key, acir_get_honk_verification_key_keccak, acir_vk_as_fields_ultra_honk, get_circuit_sizes,
 };
 
 use crate::circuit::decode_circuit;
@@ -14,6 +14,15 @@ pub fn get_honk_verification_key(circuit_bytecode: &str, recursive: bool) -> Res
     Ok(result)
 }
 
+pub fn get_honk_verification_key_keccak(circuit_bytecode: &str, recursive: bool) -> Result<Vec<u8>, String> {
+    let (_, acir_buffer_uncompressed) = decode_circuit(circuit_bytecode)
+        .map_err(|e| format!("Failed to decode circuit: {}", e))?;
+
+    let result = unsafe {
+        acir_get_honk_verification_key_keccak(&acir_buffer_uncompressed, recursive)
+    };
+    Ok(result)
+}
 
 pub fn compute_subgroup_size(circuit_size: u32) -> u32 {
     let log_value = (circuit_size as f64).log2().ceil() as u32;
