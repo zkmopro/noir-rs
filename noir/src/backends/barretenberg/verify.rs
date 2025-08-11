@@ -1,11 +1,21 @@
-use bb::barretenberg_api::acir::acir_verify_ultra_honk;
+use bb::barretenberg_api::acir::{acir_verify_ultra_honk, acir_verify_ultra_keccak_honk};
 
 pub fn verify_ultra_honk(
     proof: Vec<u8>,
     verification_key: Vec<u8>,
 ) -> Result<bool, String> {
     Ok(unsafe {
-        let result = acir_verify_ultra_honk( &proof, &verification_key);
+        let result = acir_verify_ultra_honk(&proof, &verification_key);
+        result
+    })
+}
+
+pub fn verify_ultra_keccak_honk(
+    proof: Vec<u8>,
+    verification_key: Vec<u8>,
+) -> Result<bool, String> {
+    Ok(unsafe {
+        let result = acir_verify_ultra_keccak_honk(&proof, &verification_key);
         result
     })
 }

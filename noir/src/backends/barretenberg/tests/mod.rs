@@ -1,6 +1,6 @@
 use tracing::info;
 use bb::barretenberg_api::{acir::get_circuit_sizes, common::example_simple_create_and_verify_proof, srs::init_srs};
-use crate::backends::barretenberg::{srs::{setup_srs_from_bytecode, setup_srs, netsrs::NetSrs}, verify::verify_ultra_honk, prove::prove_ultra_honk, recursion, utils::{get_honk_verification_key, compute_subgroup_size}};
+use crate::backends::barretenberg::{srs::{setup_srs_from_bytecode, setup_srs, netsrs::NetSrs}, verify::{verify_ultra_honk, verify_ultra_keccak_honk}, prove::{prove_ultra_honk, prove_ultra_keccak_honk}, recursion, utils::{get_honk_verification_key, get_honk_verification_key_keccak, compute_subgroup_size}};
 use acir::{FieldElement, native_types::{Witness, WitnessMap}};
 use crate::{witness, circuit};
 use serde_json;
@@ -48,38 +48,6 @@ fn test_prove_and_verify_ultra_honk() {
     info!("ultra honk proof generation time: {:?}", start.elapsed());
 
     let vk = get_honk_verification_key(BYTECODE, false).unwrap();
-
-    let verdict = verify_ultra_honk(proof, vk).unwrap();
-    info!("honk proof verification verdict: {}", verdict);
-}
-
-// The bytecode fails to be interpreted correctly by Barretenberg
-#[test]
-fn test_ultra_honk_keccak() {
-    let _ = tracing_subscriber::fmt::try_init();
-
-    // Read the JSON manifest of the circuit 
-    let keccak_circuit_txt = std::fs::read_to_string("../circuits/target/keccak.json").unwrap();
-    // Parse the JSON manifest into a dictionary
-    let keccak_circuit: serde_json::Value = serde_json::from_str(&keccak_circuit_txt).unwrap();
-    // Get the bytecode from the dictionary
-    let keccak_circuit_bytecode = keccak_circuit["bytecode"].as_str().unwrap();
-    
-    // Setup SRS
-    setup_srs_from_bytecode(keccak_circuit_bytecode, None, false).unwrap();
-
-    // Ultra Honk
-
-    // Get the witness map from the vector of field elements
-    // The vector items can be either a FieldElement, an unsigned integer
-    // For hex or decimal strings, use from_vec_str_to_witness_map
-    let initial_witness = witness::from_vec_to_witness_map(vec![2 as u128, 5 as u128, 10 as u128, 15 as u128, 20 as u128]).unwrap();
-
-    let start = std::time::Instant::now();
-    let proof = prove_ultra_honk(keccak_circuit_bytecode, initial_witness, false).unwrap();
-    info!("ultra honk proof generation time: {:?}", start.elapsed());
-
-    let vk = get_honk_verification_key(keccak_circuit_bytecode, false).unwrap();
 
     let verdict = verify_ultra_honk(proof, vk).unwrap();
     info!("honk proof verification verdict: {}", verdict);
@@ -136,6 +104,21 @@ fn test_compute_subgroup_size() {
 
     subgroup_size = compute_subgroup_size(1000000);
     assert_eq!(subgroup_size, 1048576);    
+}
+
+#[test]
+fn test_prove_ultra_keccak_honk() {
+    let _ = tracing_subscriber::fmt::try_init();
+
+    // Setup SRS using the same working bytecode
+    setup_srs_from_bytecode(BYTECODE, None, false).unwrap();
+
+    // Get the witness map from the vector of field elements
+    let initial_witness = witness::from_vec_to_witness_map(vec![5 as u128, 6 as u128, 30 as u128]).unwrap();
+
+    let start = std::time::Instant::now();
+    let proof = prove_ultra_keccak_honk(BYTECODE, initial_witness, false).unwrap();
+    info!("ultra keccak honk proof generation time: {:?}", start.elapsed());
 }
 
 /*#[test]

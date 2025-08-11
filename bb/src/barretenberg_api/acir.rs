@@ -126,6 +126,28 @@ pub unsafe fn acir_prove_ultra_honk(
     .to_vec()
 }
 
+pub unsafe fn acir_prove_ultra_keccak_honk(
+    constraint_system_buf: &[u8],
+    witness_buf: &[u8],
+    recursive: bool,
+) -> Vec<u8> {
+    let mut out_ptr = ptr::null_mut();
+    bindgen::acir_prove_ultra_keccak_honk(
+        constraint_system_buf.to_buffer().as_slice().as_ptr(),
+        &recursive,
+        witness_buf.to_buffer().as_slice().as_ptr(),
+        &mut out_ptr,
+    );
+    Buffer::from_ptr(
+        Buffer::from_ptr(out_ptr)
+            .unwrap()
+            .to_vec()
+            .as_slice()
+            .as_ptr(),
+    )
+    .unwrap()
+    .to_vec()
+}
 
 pub unsafe fn acir_load_verification_key(acir_composer_ptr: &mut Ptr, vk_buf: &[u8]) {
     bindgen::acir_load_verification_key(acir_composer_ptr, vk_buf.as_ptr());
@@ -167,6 +189,24 @@ pub unsafe fn acir_get_honk_verification_key(constraint_system_buf: &[u8], recur
     .to_vec()
 }
 
+pub unsafe fn acir_get_honk_verification_key_keccak(constraint_system_buf: &[u8], recursive: bool) -> Vec<u8> {
+    let mut out_ptr = ptr::null_mut();
+    bindgen::acir_write_vk_ultra_keccak_honk(
+        constraint_system_buf.to_buffer().as_slice().as_ptr(),
+        &recursive,
+        &mut out_ptr
+    );
+    Buffer::from_ptr(
+        Buffer::from_ptr(out_ptr)
+            .unwrap()
+            .to_vec()
+            .as_slice()
+            .as_ptr(),
+    )
+    .unwrap()
+    .to_vec()
+}
+
 pub unsafe fn acir_get_proving_key(acir_composer_ptr: &mut Ptr, acir_vec: &[u8], recursive: bool) -> Vec<u8> {
     let mut out_ptr = ptr::null_mut();
     bindgen::acir_get_proving_key(
@@ -191,6 +231,16 @@ pub unsafe fn acir_verify_proof(acir_composer_ptr: &mut Ptr, proof_buf: &[u8]) -
 pub unsafe fn acir_verify_ultra_honk(proof_buf: &[u8], vkey_buf: &[u8]) -> bool {
     let mut result = false;
     bindgen::acir_verify_ultra_honk(
+        proof_buf.to_buffer().as_ptr(),
+        vkey_buf.to_buffer().as_ptr(),
+        &mut result,
+    );
+    result
+}
+
+pub unsafe fn acir_verify_ultra_keccak_honk(proof_buf: &[u8], vkey_buf: &[u8]) -> bool {
+    let mut result = false;
+    bindgen::acir_verify_ultra_keccak_honk(
         proof_buf.to_buffer().as_ptr(),
         vkey_buf.to_buffer().as_ptr(),
         &mut result,
