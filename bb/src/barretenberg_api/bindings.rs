@@ -2,7 +2,6 @@
 
 pub type out_str_buf = *mut *mut u8;
 pub type in_ptr = *const *mut ::std::os::raw::c_void;
-pub type out_ptr = *mut *mut ::std::os::raw::c_void;
 unsafe extern "C" {
     pub fn pedersen_commit(inputs_buffer: vec_in_buf, ctx_index: *const u32, output: out_buf);
 }
@@ -16,10 +15,10 @@ unsafe extern "C" {
     pub fn pedersen_hash_buffer(input_buffer: *const u8, hash_index: *const u32, output: *mut u8);
 }
 unsafe extern "C" {
-    pub fn poseidon_hash(inputs_buffer: *const u8, output: *mut u8);
+    pub fn poseidon2_hash(inputs_buffer: vec_in_buf, output: *mut u8);
 }
 unsafe extern "C" {
-    pub fn poseidon_hashes(inputs_buffer: *const u8, output: *mut u8);
+    pub fn poseidon2_hashes(inputs_buffer: vec_in_buf, output: *mut u8);
 }
 unsafe extern "C" {
     pub fn blake2s(data: *const u8, out: *mut u8);
@@ -92,9 +91,6 @@ unsafe extern "C" {
     pub fn srs_init_grumpkin_srs(points_buf: *const u8, num_points: *const u32);
 }
 unsafe extern "C" {
-    pub fn examples_simple_create_and_verify_proof(valid: *mut bool);
-}
-unsafe extern "C" {
     pub fn test_threads(threads: *const u32, iterations: *const u32, out: *mut u32);
 }
 unsafe extern "C" {
@@ -110,36 +106,22 @@ unsafe extern "C" {
     );
 }
 unsafe extern "C" {
-    pub fn acir_new_acir_composer(size_hint: *const u32, out: out_ptr);
-}
-unsafe extern "C" {
-    pub fn acir_delete_acir_composer(acir_composer_ptr: in_ptr);
-}
-unsafe extern "C" {
-    pub fn acir_init_proving_key(
-        acir_composer_ptr: in_ptr,
-        constraint_system_buf: *const u8,
-        recursive: *const bool,
-    );
-}
-unsafe extern "C" {
-    #[doc = " It would have been nice to just hold onto the constraint_system in the acir_composer, but we can't waste the\n memory. Being able to reuse the underlying Composer would help as well. But, given the situation, we just have\n to pass it in everytime."]
-    pub fn acir_create_proof(
-        acir_composer_ptr: in_ptr,
-        constraint_system_buf: *const u8,
-        recursive: *const bool,
-        witness_buf: *const u8,
-        out: *mut *mut u8,
-    );
-}
-unsafe extern "C" {
     #[doc = " @brief Construct and verify an UltraHonk proof\n"]
     pub fn acir_prove_and_verify_ultra_honk(
         constraint_system_buf: *const u8,
-        recursive: *const bool,
         witness_buf: *const u8,
         result: *mut bool,
     );
+}
+unsafe extern "C" {
+    pub fn acir_prove_aztec_client(
+        ivc_inputs_buf: *const u8,
+        out_proof: *mut *mut u8,
+        out_vk: *mut *mut u8,
+    );
+}
+unsafe extern "C" {
+    pub fn acir_verify_aztec_client(proof_buf: *const u8, vk_buf: *const u8, result: *mut bool);
 }
 unsafe extern "C" {
     pub fn acir_load_verification_key(acir_composer_ptr: in_ptr, vk_buf: *const u8);
@@ -180,17 +162,18 @@ unsafe extern "C" {
     );
 }
 unsafe extern "C" {
-    pub fn acir_prove_ultra_honk(
+    pub fn acir_prove_ultra_honk(acir_vec: *const u8, witness_vec: *const u8, out: *mut *mut u8);
+}
+unsafe extern "C" {
+    pub fn acir_prove_ultra_keccak_honk(
         acir_vec: *const u8,
-        recursive: *const bool,
         witness_vec: *const u8,
         out: *mut *mut u8,
     );
 }
 unsafe extern "C" {
-    pub fn acir_prove_ultra_keccak_honk(
+    pub fn acir_prove_ultra_keccak_zk_honk(
         acir_vec: *const u8,
-        recursive: *const bool,
         witness_vec: *const u8,
         out: *mut *mut u8,
     );
@@ -206,14 +189,20 @@ unsafe extern "C" {
     );
 }
 unsafe extern "C" {
-    pub fn acir_write_vk_ultra_honk(acir_vec: *const u8, recursive: *const bool, out: *mut *mut u8);
+    pub fn acir_verify_ultra_keccak_zk_honk(
+        proof_buf: *const u8,
+        vk_buf: *const u8,
+        result: *mut bool,
+    );
 }
 unsafe extern "C" {
-    pub fn acir_write_vk_ultra_keccak_honk(
-        acir_vec: *const u8,
-        recursive: *const bool,
-        out: *mut *mut u8,
-    );
+    pub fn acir_write_vk_ultra_honk(acir_vec: *const u8, out: *mut *mut u8);
+}
+unsafe extern "C" {
+    pub fn acir_write_vk_ultra_keccak_honk(acir_vec: *const u8, out: *mut *mut u8);
+}
+unsafe extern "C" {
+    pub fn acir_write_vk_ultra_keccak_zk_honk(acir_vec: *const u8, out: *mut *mut u8);
 }
 unsafe extern "C" {
     pub fn acir_proof_as_fields_ultra_honk(proof_buf: *const u8, out: vec_out_buf);
