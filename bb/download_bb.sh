@@ -20,7 +20,7 @@ download_and_unzip() {
     local target="$1"
     local asset_name="bb_rs-$target.tar.gz"
     local zip_file="$BUILD_DIR/$asset_name"
-    local bb_version="0.82.2"
+    local bb_version="1.0.0-nightly.20250723"
     
     echo "Downloading $asset_name..."
     
