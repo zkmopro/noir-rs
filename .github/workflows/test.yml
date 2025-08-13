@@ -32,16 +32,6 @@ jobs:
                       ${{ runner.os }}-aarch64-cargo-build-${{ hashFiles('**/Cargo.lock') }}-
                       ${{ runner.os }}-aarch64-cargo-build-
                       
-            # Cache barretenberg binaries
-            - name: Cache barretenberg binaries
-              uses: actions/cache@v4
-              with:
-                  path: |
-                      bb/target/*/build/bb-*/out/bb/
-                  key: ${{ runner.os }}-aarch64-bb-binaries-v0.82.2
-                  restore-keys: |
-                      ${{ runner.os }}-aarch64-bb-binaries-
-                      
             - name: Install Rust iOS toolchain
               uses: dtolnay/rust-toolchain@1.89.0
               with:
@@ -57,9 +47,9 @@ jobs:
               with:
                   path: |
                       ~/.nargo
-                  key: ${{ runner.os }}-nargo-1.0.0-beta.3
+                  key: ${{ runner.os }}-aarch64-nargo-1.0.0-beta.3
                   restore-keys: |
-                      ${{ runner.os }}-nargo-
+                      ${{ runner.os }}-aarch64-nargo-
                       
             - name: Install Nargo
               uses: noir-lang/noirup@v0.1.4
@@ -73,9 +63,9 @@ jobs:
                   path: |
                       circuits/target/
                       circuits/proofs/
-                  key: ${{ runner.os }}-circuit-artifacts-${{ hashFiles('circuits/**/*.nr', 'circuits/**/*.toml') }}
+                  key: ${{ runner.os }}-aarch64-circuit-artifacts-${{ hashFiles('circuits/**/*.nr', 'circuits/**/*.toml') }}
                   restore-keys: |
-                      ${{ runner.os }}-circuit-artifacts-
+                      ${{ runner.os }}-aarch64-circuit-artifacts-
                       
             - name: Build circuits
               run: |
@@ -100,9 +90,9 @@ jobs:
               with:
                   path: |
                       ~/.cargo/bin/cargo-ndk
-                  key: ${{ runner.os }}-cargo-ndk-${{ hashFiles('~/.cargo/bin/cargo-ndk') }}
+                  key: ${{ runner.os }}-aarch64-cargo-ndk-${{ hashFiles('~/.cargo/bin/cargo-ndk') }}
                   restore-keys: |
-                      ${{ runner.os }}-cargo-ndk-
+                      ${{ runner.os }}-aarch64-cargo-ndk-
                       
             - name: Install cargo-ndk
               run: |
@@ -143,16 +133,6 @@ jobs:
                       ${{ runner.os }}-x86_64-cargo-build-${{ hashFiles('**/Cargo.lock') }}-
                       ${{ runner.os }}-x86_64-cargo-build-
                       
-            # Cache barretenberg binaries
-            - name: Cache barretenberg binaries
-              uses: actions/cache@v4
-              with:
-                  path: |
-                      bb/target/*/build/bb-*/out/bb/
-                  key: ${{ runner.os }}-x86_64-bb-binaries-v0.82.2
-                  restore-keys: |
-                      ${{ runner.os }}-x86_64-bb-binaries-
-                      
             - name: Install Rust x86_64 toolchain
               uses: dtolnay/rust-toolchain@1.89.0
               with:
@@ -167,9 +147,9 @@ jobs:
               with:
                   path: |
                       ~/.nargo
-                  key: ${{ runner.os }}-nargo-1.0.0-beta.3
+                  key: ${{ runner.os }}-x86_64-nargo-1.0.0-beta.3
                   restore-keys: |
-                      ${{ runner.os }}-nargo-
+                      ${{ runner.os }}-x86_64-nargo-
                       
             - name: Install Nargo
               uses: noir-lang/noirup@v0.1.4
@@ -183,9 +163,9 @@ jobs:
                   path: |
                       circuits/target/
                       circuits/proofs/
-                  key: ${{ runner.os }}-circuit-artifacts-${{ hashFiles('circuits/**/*.nr', 'circuits/**/*.toml') }}
+                  key: ${{ runner.os }}-x86_64-circuit-artifacts-${{ hashFiles('circuits/**/*.nr', 'circuits/**/*.toml') }}
                   restore-keys: |
-                      ${{ runner.os }}-circuit-artifacts-
+                      ${{ runner.os }}-x86_64-circuit-artifacts-
                       
             - name: Build circuits
               run: |
@@ -207,9 +187,9 @@ jobs:
               with:
                   path: |
                       ~/.cargo/bin/cargo-ndk
-                  key: ${{ runner.os }}-cargo-ndk-${{ hashFiles('~/.cargo/bin/cargo-ndk') }}
+                  key: ${{ runner.os }}-x86_64-cargo-ndk-${{ hashFiles('~/.cargo/bin/cargo-ndk') }}
                   restore-keys: |
-                      ${{ runner.os }}-cargo-ndk-
+                      ${{ runner.os }}-x86_64-cargo-ndk-
                       
             - name: Install cargo-ndk
               run: |
@@ -250,16 +230,6 @@ jobs:
                       ${{ runner.os }}-linux-cargo-build-${{ hashFiles('**/Cargo.lock') }}-
                       ${{ runner.os }}-linux-cargo-build-
                       
-            # Cache barretenberg binaries
-            - name: Cache barretenberg binaries
-              uses: actions/cache@v4
-              with:
-                  path: |
-                      bb/target/*/build/bb-*/out/bb/
-                  key: ${{ runner.os }}-linux-bb-binaries-v0.82.2
-                  restore-keys: |
-                      ${{ runner.os }}-linux-bb-binaries-
-                      
             - name: Install Rust Linux toolchain
               uses: dtolnay/rust-toolchain@1.89.0
               with:
@@ -272,9 +242,9 @@ jobs:
               with:
                   path: |
                       ~/.nargo
-                  key: ${{ runner.os }}-nargo-1.0.0-beta.3
+                  key: ${{ runner.os }}-linux-nargo-1.0.0-beta.3
                   restore-keys: |
-                      ${{ runner.os }}-nargo-
+                      ${{ runner.os }}-linux-nargo-
                       
             - name: Install Nargo
               uses: noir-lang/noirup@v0.1.4
@@ -288,9 +258,9 @@ jobs:
                   path: |
                       circuits/target/
                       circuits/proofs/
-                  key: ${{ runner.os }}-circuit-artifacts-${{ hashFiles('circuits/**/*.nr', 'circuits/**/*.toml') }}
+                  key: ${{ runner.os }}-linux-circuit-artifacts-${{ hashFiles('circuits/**/*.nr', 'circuits/**/*.toml') }}
                   restore-keys: |
-                      ${{ runner.os }}-circuit-artifacts-
+                      ${{ runner.os }}-linux-circuit-artifacts-
                       
             - name: Build circuits
               run: |
