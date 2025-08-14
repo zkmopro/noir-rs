@@ -11,3 +11,4 @@ num-bigint = "0.4"
 
 [build-dependencies]
 cc = "1.2"
+chkstk_stub = "0.1"
