@@ -27,6 +27,11 @@ fn main() {
         .next()
         .expect("Architecture cannot be parsed");
 
+    // Create the stub source file
+    if target.contains("apple-ios") {
+        stub_for_ios(&out_dir);
+    }
+
     // Try to list contents of the target directory
     let bb_path = Path::new(&out_dir).join(Path::new("bb"));
     // If the bb path is not downloaded, download it
@@ -101,4 +106,24 @@ fn android() {
         }
         fs::copy(lib_path, Path::new(&dest_dir).join("libc++_shared.so")).unwrap();
     }
+}
+
+fn stub_for_ios(out_dir: &str) {
+    let stub_path = Path::new(&out_dir).join("chkstk_stub.c");
+    fs::write(
+        &stub_path,
+        r#"
+        void __chkstk_darwin(void) {}
+        "#,
+    )
+    .unwrap();
+
+    // Compile the stub into a static lib
+    cc::Build::new()
+        .file(&stub_path)
+        .out_dir(&out_dir)
+        .compile("chkstk_stub");
+
+    println!("cargo:rustc-link-search=native={out_dir}");
+    println!("cargo:rustc-link-lib=static=chkstk_stub");
 }
