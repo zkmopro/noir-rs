@@ -5,6 +5,8 @@ on: [push, pull_request]
 jobs:
     test-aarch64:
         runs-on: macos-latest
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         steps:
             - uses: actions/checkout@v4
             
@@ -106,6 +108,8 @@ jobs:
 
     test-x86_64:
         runs-on: macos-13
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         steps:
             - uses: actions/checkout@v4
             
@@ -203,6 +207,8 @@ jobs:
 
     test-linux:
         runs-on: ubuntu-latest
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         steps:
             - uses: actions/checkout@v4
             
