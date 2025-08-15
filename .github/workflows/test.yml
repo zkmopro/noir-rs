@@ -62,7 +62,6 @@ jobs:
               with:
                   path: |
                       circuits/target/
-                      circuits/proofs/
                   key: ${{ runner.os }}-aarch64-circuit-artifacts-${{ hashFiles('circuits/**/*.nr', 'circuits/**/*.toml') }}
                   restore-keys: |
                       ${{ runner.os }}-aarch64-circuit-artifacts-
@@ -70,7 +69,8 @@ jobs:
             - name: Build circuits
               run: |
                   cd circuits
-                  sh ./scripts/generate-proof-artifacts.sh keccak
+                  sh ./scripts/generate-bytecode-and-witness.sh keccak
+                  sh ./scripts/generate-bytecode-and-witness.sh keccak_large
             - name: Test Noir
               # sequential execution to avoid race conditions
               run: |
@@ -162,7 +162,6 @@ jobs:
               with:
                   path: |
                       circuits/target/
-                      circuits/proofs/
                   key: ${{ runner.os }}-x86_64-circuit-artifacts-${{ hashFiles('circuits/**/*.nr', 'circuits/**/*.toml') }}
                   restore-keys: |
                       ${{ runner.os }}-x86_64-circuit-artifacts-
@@ -170,7 +169,8 @@ jobs:
             - name: Build circuits
               run: |
                   cd circuits
-                  sh ./scripts/generate-proof-artifacts.sh keccak
+                  sh ./scripts/generate-bytecode-and-witness.sh keccak
+                  sh ./scripts/generate-bytecode-and-witness.sh keccak_large
             - name: Test Noir x86_64
               # sequential execution to avoid race conditions
               run: |
@@ -257,7 +257,6 @@ jobs:
               with:
                   path: |
                       circuits/target/
-                      circuits/proofs/
                   key: ${{ runner.os }}-linux-circuit-artifacts-${{ hashFiles('circuits/**/*.nr', 'circuits/**/*.toml') }}
                   restore-keys: |
                       ${{ runner.os }}-linux-circuit-artifacts-
@@ -265,7 +264,8 @@ jobs:
             - name: Build circuits
               run: |
                   cd circuits
-                  sh ./scripts/generate-proof-artifacts.sh keccak
+                  sh ./scripts/generate-bytecode-and-witness.sh keccak
+                  sh ./scripts/generate-bytecode-and-witness.sh keccak_large
             - name: Test Noir Linux
               # sequential execution to avoid race conditions
               run: |
