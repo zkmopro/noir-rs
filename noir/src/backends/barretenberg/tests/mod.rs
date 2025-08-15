@@ -4,8 +4,60 @@ use crate::backends::barretenberg::{srs::{setup_srs_from_bytecode, setup_srs, ne
 use acir::{FieldElement, native_types::{Witness, WitnessMap}};
 use crate::{witness, circuit};
 use serde_json;
+use std::path::PathBuf;
+use std::env;
 
 const BYTECODE: &str = "H4sIAAAAAAAA/62QQQqAMAwErfigpEna5OZXLLb/f4KKLZbiTQdCQg7Dsm66mc9x00O717rhG9ico5cgMOfoMxJu4C2pAEsKioqisnslysoaLVkEQ6aMRYxKFc//ZYQr29L10XfhXv4jB52E+OpMAQAA";
+
+/// Helper function to construct robust paths to circuit files
+/// This function tries multiple strategies to find the correct path:
+/// 1. First tries to use CARGO_MANIFEST_DIR if available
+/// 2. Falls back to searching from current directory
+/// 3. Finally tries relative paths as last resort
+fn get_circuit_path(filename: &str) -> PathBuf {
+    // Try to use CARGO_MANIFEST_DIR first (most reliable)
+    if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
+        let mut path = PathBuf::from(manifest_dir);
+        path.push("..");
+        path.push("circuits");
+        path.push("target");
+        path.push(filename);
+        if path.exists() {
+            return path;
+        }
+    }
+    
+    // Try to find from current directory by going up to workspace root
+    if let Ok(current_dir) = env::current_dir() {
+        let mut path = current_dir.clone();
+        
+        // Try to go up to workspace root and find circuits/target
+        while path.parent().is_some() {
+            let test_path = path.join("circuits").join("target").join(filename);
+            if test_path.exists() {
+                return test_path;
+            }
+            path = path.parent().unwrap().to_path_buf();
+        }
+    }
+    
+    // Fallback: try relative paths (less reliable but might work in some cases)
+    let relative_paths = [
+        format!("../circuits/target/{}", filename),
+        format!("../../circuits/target/{}", filename),
+        format!("circuits/target/{}", filename),
+    ];
+    
+    for relative_path in relative_paths.iter() {
+        let path = PathBuf::from(relative_path);
+        if path.exists() {
+            return path;
+        }
+    }
+    
+    // If all else fails, return the expected path and let the caller handle the error
+    PathBuf::from(format!("circuits/target/{}", filename))
+}
 
 #[test]
 fn test_acir_get_circuit_size() {
@@ -22,17 +74,23 @@ fn test_prove_and_verify_ultra_honk() {
     let _ = tracing_subscriber::fmt::try_init();
 
     // Setup SRS
+    println!("setting up srs");
     setup_srs_from_bytecode(BYTECODE, None, false).unwrap();
+    println!("srs setup");
 
     // Ultra Honk
 
     // Get the witness map from the vector of field elements
     // The vector items can be either a FieldElement, an unsigned integer
     // For hex or decimal strings, use from_vec_str_to_witness_map
+    println!("getting initial witness");
     let initial_witness = witness::from_vec_to_witness_map(vec![5 as u128, 6 as u128, 30 as u128]).unwrap();
+    println!("initial witness: {:?}", initial_witness);
 
     let start = std::time::Instant::now();
+    println!("getting vk");
     let vk = get_ultra_honk_verification_key(BYTECODE, false).unwrap();
+    println!("vk: {:?}", vk);
     assert_eq!(acir_get_slow_low_memory(), false);
 
     let proof = prove_ultra_honk(BYTECODE, initial_witness, vk.clone(), false).unwrap();
@@ -47,8 +105,10 @@ fn test_prove_and_verify_ultra_honk() {
 fn test_ultra_honk_keccak() {
     let _ = tracing_subscriber::fmt::try_init();
 
-    // Read the JSON manifest of the circuit 
-    let keccak_circuit_txt = std::fs::read_to_string("circuits/target/keccak.json").unwrap();
+    // Read the JSON manifest of the circuit
+    let keccak_circuit_path = get_circuit_path("keccak.json");
+    let keccak_circuit_txt = std::fs::read_to_string(&keccak_circuit_path)
+        .unwrap_or_else(|_| panic!("Failed to read circuit file at: {:?}", keccak_circuit_path));
     // Parse the JSON manifest into a dictionary
     let keccak_circuit: serde_json::Value = serde_json::from_str(&keccak_circuit_txt).unwrap();
     // Get the bytecode from the dictionary
@@ -80,8 +140,10 @@ fn test_ultra_honk_keccak() {
 fn test_ultra_honk_low_memory() {
     let _ = tracing_subscriber::fmt::try_init();
 
-    // Read the JSON manifest of the circuit 
-    let circuit_txt = std::fs::read_to_string("circuits/target/keccak_large.json").unwrap();
+    // Read the JSON manifest of the circuit
+    let circuit_path = get_circuit_path("keccak_large.json");
+    let circuit_txt = std::fs::read_to_string(&circuit_path)
+        .unwrap_or_else(|_| panic!("Failed to read circuit file at: {:?}", circuit_path));
     // Parse the JSON manifest into a dictionary
     let circuit: serde_json::Value = serde_json::from_str(&circuit_txt).unwrap();
     // Get the bytecode from the dictionary
@@ -165,7 +227,9 @@ fn test_compute_subgroup_size() {
 /*#[test]
 fn test_ultra_honk_recursive_proving() {
     // Read the JSON manifest of the circuit 
-    let recursed_circuit_txt = std::fs::read_to_string("circuits/target/recursed.json").unwrap();
+    let recursed_circuit_path = get_circuit_path("recursed.json");
+    let recursed_circuit_txt = std::fs::read_to_string(&recursed_circuit_path)
+        .unwrap_or_else(|_| panic!("Failed to read circuit file at: {:?}", recursed_circuit_path));
     // Parse the JSON manifest into a dictionary
     let recursed_circuit: serde_json::Value = serde_json::from_str(&recursed_circuit_txt).unwrap();
     // Get the bytecode from the dictionary
@@ -192,7 +256,9 @@ fn test_ultra_honk_recursive_proving() {
     //assert_eq!(key_hash, "0x25240793a378438025d0dbe8a4e197c93ec663864a5c9b01699199423dab1008");
 
     // Read the JSON manifest of the circuit 
-    let recursive_circuit_txt = std::fs::read_to_string("circuits/target/recursive.json").unwrap();
+    let recursive_circuit_path = get_circuit_path("recursive.json");
+    let recursive_circuit_txt = std::fs::read_to_string(&recursive_circuit_path)
+        .unwrap_or_else(|_| panic!("Failed to read circuit file at: {:?}", recursive_circuit_path));
     // Parse the JSON manifest into a dictionary
     let recursive_circuit: serde_json::Value = serde_json::from_str(&recursive_circuit_txt).unwrap();
     // Get the bytecode from the dictionary
