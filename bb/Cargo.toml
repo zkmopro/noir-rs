@@ -1,6 +1,6 @@
 [package]
 name = "bb"
-version = "0.82.2"
+version = "1.0.0-nightly.20250723"
 edition = "2021"
 
 [dependencies]

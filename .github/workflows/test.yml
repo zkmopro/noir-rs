@@ -5,6 +5,8 @@ on: [push, pull_request]
 jobs:
     test-aarch64:
         runs-on: macos-latest
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         steps:
             - uses: actions/checkout@v4
             
@@ -47,14 +49,14 @@ jobs:
               with:
                   path: |
                       ~/.nargo
-                  key: ${{ runner.os }}-aarch64-nargo-1.0.0-beta.3
+                  key: ${{ runner.os }}-aarch64-nargo-1.0.0-beta.8
                   restore-keys: |
                       ${{ runner.os }}-aarch64-nargo-
                       
             - name: Install Nargo
               uses: noir-lang/noirup@v0.1.4
               with:
-                  toolchain: 1.0.0-beta.3
+                  toolchain: 1.0.0-beta.8
                   
             # Cache circuit artifacts
             - name: Cache circuit artifacts
@@ -62,7 +64,6 @@ jobs:
               with:
                   path: |
                       circuits/target/
-                      circuits/proofs/
                   key: ${{ runner.os }}-aarch64-circuit-artifacts-${{ hashFiles('circuits/**/*.nr', 'circuits/**/*.toml') }}
                   restore-keys: |
                       ${{ runner.os }}-aarch64-circuit-artifacts-
@@ -70,7 +71,8 @@ jobs:
             - name: Build circuits
               run: |
                   cd circuits
-                  sh ./scripts/generate-proof-artifacts.sh keccak
+                  sh ./scripts/generate-bytecode-and-witness.sh keccak
+                  sh ./scripts/generate-bytecode-and-witness.sh keccak_large
             - name: Test Noir
               # sequential execution to avoid race conditions
               run: |
@@ -106,6 +108,8 @@ jobs:
 
     test-x86_64:
         runs-on: macos-13
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         steps:
             - uses: actions/checkout@v4
             
@@ -147,14 +151,14 @@ jobs:
               with:
                   path: |
                       ~/.nargo
-                  key: ${{ runner.os }}-x86_64-nargo-1.0.0-beta.3
+                  key: ${{ runner.os }}-x86_64-nargo-1.0.0-beta.8
                   restore-keys: |
                       ${{ runner.os }}-x86_64-nargo-
                       
             - name: Install Nargo
               uses: noir-lang/noirup@v0.1.4
               with:
-                  toolchain: 1.0.0-beta.3
+                  toolchain: 1.0.0-beta.8
                   
             # Cache circuit artifacts
             - name: Cache circuit artifacts
@@ -162,7 +166,6 @@ jobs:
               with:
                   path: |
                       circuits/target/
-                      circuits/proofs/
                   key: ${{ runner.os }}-x86_64-circuit-artifacts-${{ hashFiles('circuits/**/*.nr', 'circuits/**/*.toml') }}
                   restore-keys: |
                       ${{ runner.os }}-x86_64-circuit-artifacts-
@@ -170,7 +173,8 @@ jobs:
             - name: Build circuits
               run: |
                   cd circuits
-                  sh ./scripts/generate-proof-artifacts.sh keccak
+                  sh ./scripts/generate-bytecode-and-witness.sh keccak
+                  sh ./scripts/generate-bytecode-and-witness.sh keccak_large
             - name: Test Noir x86_64
               # sequential execution to avoid race conditions
               run: |
@@ -203,6 +207,8 @@ jobs:
 
     test-linux:
         runs-on: ubuntu-latest
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         steps:
             - uses: actions/checkout@v4
             
@@ -242,14 +248,14 @@ jobs:
               with:
                   path: |
                       ~/.nargo
-                  key: ${{ runner.os }}-linux-nargo-1.0.0-beta.3
+                  key: ${{ runner.os }}-linux-nargo-1.0.0-beta.8
                   restore-keys: |
                       ${{ runner.os }}-linux-nargo-
                       
             - name: Install Nargo
               uses: noir-lang/noirup@v0.1.4
               with:
-                  toolchain: 1.0.0-beta.3
+                  toolchain: 1.0.0-beta.8
                   
             # Cache circuit artifacts
             - name: Cache circuit artifacts
@@ -257,7 +263,6 @@ jobs:
               with:
                   path: |
                       circuits/target/
-                      circuits/proofs/
                   key: ${{ runner.os }}-linux-circuit-artifacts-${{ hashFiles('circuits/**/*.nr', 'circuits/**/*.toml') }}
                   restore-keys: |
                       ${{ runner.os }}-linux-circuit-artifacts-
@@ -265,7 +270,8 @@ jobs:
             - name: Build circuits
               run: |
                   cd circuits
-                  sh ./scripts/generate-proof-artifacts.sh keccak
+                  sh ./scripts/generate-bytecode-and-witness.sh keccak
+                  sh ./scripts/generate-bytecode-and-witness.sh keccak_large
             - name: Test Noir Linux
               # sequential execution to avoid race conditions
               run: |

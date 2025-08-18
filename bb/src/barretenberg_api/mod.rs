@@ -1,9 +1,8 @@
 pub mod acir;
 pub mod blake2s;
-pub mod common;
 pub mod models;
 pub mod pedersen;
-pub mod poseidon;
+pub mod poseidon2;
 pub mod schnorr;
 pub mod srs;
 pub mod traits;

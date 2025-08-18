@@ -1,5 +1,5 @@
 [package]
-name = "keccak"
+name = "keccak_large"
 type = "bin"
 authors = ["Théo Madzou"]
 compiler_version = ">=0.30.0"
