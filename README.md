@@ -138,6 +138,14 @@ cargo run --bin srs_downloader --features srs-downloader -- -c path/to/your/circ
 
 This will download the SRS and save it to `./srs_cache/your_circuit_name.srs` by default (e.g., `./srs_cache/my_circuit.srs`).
 
+**Recursive Mode:**
+
+For recursive circuits, you can enable recursive mode for circuit size calculation using the `--recursive` or `-r` flag:
+
+```sh
+cargo run --bin srs_downloader --features srs-downloader -- -c path/to/your/circuit.json --recursive
+```
+
 ### 2. Default SRS
 
 If you don't have a specific circuit manifest or want a general-purpose SRS, you can download a default one (supports up to 2^18 constraints):
@@ -155,6 +163,9 @@ You can specify a custom output path for the downloaded SRS file using the `-o` 
 ```sh
 # For a specific circuit
 cargo run --bin srs_downloader --features srs-downloader -- -c path/to/your/circuit.json -o /custom/path/to/srs_file.srs
+
+# For a specific circuit with recursive mode
+cargo run --bin srs_downloader --features srs-downloader -- -c path/to/your/circuit.json -o /custom/path/to/srs_file.srs --recursive
 
 # For a default SRS
 cargo run --bin srs_downloader --features srs-downloader -- -o /custom/path/to/default.srs

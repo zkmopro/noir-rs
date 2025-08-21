@@ -19,6 +19,9 @@ struct Args {
 
     #[clap(short, long, help = "Specific output path to save the SRS file. If not provided, saves to a default directory.")]
     output_path: Option<String>,
+
+    #[clap(short, long, help = "Enable recursive mode for circuit size calculation.")]
+    recursive: bool,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -44,7 +47,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
 
             println!("Circuit '{}' decoded. Downloading SRS...", circuit_name);
-            let subgroup_size = get_subgroup_size(bytecode, false);
+            let subgroup_size = get_subgroup_size(bytecode, args.recursive);
             let srs: Srs = get_srs(subgroup_size, None);
             local_srs = LocalSrs(srs);
             println!("SRS for '{}' downloaded.", circuit_name);
@@ -95,6 +98,7 @@ mod tests {
         Args {
             circuit_path: circuit_path.map(String::from),
             output_path: output_path.map(String::from),
+            recursive: false,
         }
     }
     
@@ -124,6 +128,22 @@ mod tests {
         let args = create_args(Some("test.json"), Some("output/srs.srs"));
         assert_eq!(args.circuit_path, Some("test.json".to_string()));
         assert_eq!(args.output_path, Some("output/srs.srs".to_string()));
+    }
+
+    #[test]
+    fn test_args_parsing_recursive_default() {
+        let args = create_args(None, None);
+        assert_eq!(args.recursive, false);
+    }
+
+    #[test]
+    fn test_args_parsing_recursive_explicit() {
+        let args = Args {
+            circuit_path: None,
+            output_path: None,
+            recursive: true,
+        };
+        assert_eq!(args.recursive, true);
     }
     
     #[test]
