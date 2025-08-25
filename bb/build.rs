@@ -66,6 +66,9 @@ fn main() {
     // Link the `barretenberg` static library.
     println!("cargo:rustc-link-lib=static=barretenberg");
 
+    // Link the `libdeflate` static library.
+    println!("cargo:rustc-link-lib=static=deflate");
+
     // Link the C++ standard library.
     if cfg!(target_os = "macos") || cfg!(target_os = "ios") {
         println!("cargo:rustc-link-lib=c++");
