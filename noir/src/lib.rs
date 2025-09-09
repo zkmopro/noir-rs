@@ -3,7 +3,8 @@ pub use acvm::*;
 
 pub mod execute;
 pub mod witness;
-pub mod circuit; 
+pub mod circuit;
+pub mod utils;
 mod backends;
 
 #[cfg(feature = "barretenberg")]

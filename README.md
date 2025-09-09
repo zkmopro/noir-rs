@@ -124,6 +124,33 @@ fn main() {
    bb write_solidity_verifier -k ./target/vk -o ./target/Verifier.sol
    ```
 
+### Proof and Public Inputs Separation
+
+Noir-rs provides utilities to separate public inputs from proof data, which is essential for constructing proper calldata for on-chain verification:
+
+```rs
+use noir::utils::{
+    parse_proof_with_public_inputs,
+    get_num_public_inputs_from_circuit,
+    combine_proof_and_public_inputs,
+};
+
+// Get the number of public inputs from your circuit
+let num_public_inputs = get_num_public_inputs_from_circuit(BYTECODE)?;
+
+// Generate proof (public inputs are concatenated at the beginning)
+let proof = prove_ultra_honk_keccak(BYTECODE, witness, vk, false, false)?;
+
+// Parse the proof into separated components
+let proof_with_public_inputs = parse_proof_with_public_inputs(&proof, num_public_inputs)?;
+
+// Access the separated proof and public inputs
+let pure_proof = &proof_with_public_inputs.proof;
+let public_inputs = &proof_with_public_inputs.public_inputs;
+
+// Use pure_proof and public_inputs for constructing calldata for Solidity verifier
+```
+
 ## Downloading SRS (Structured Reference String)
 
 Noir requires a Structured Reference String (SRS) for its operations. You can download the necessary SRS files using the `srs_downloader` utility included in the `noir` crate.
