@@ -3,6 +3,7 @@ use bb::barretenberg_api::{acir::{get_circuit_sizes, acir_get_slow_low_memory}, 
 use crate::backends::barretenberg::{srs::{setup_srs_from_bytecode, setup_srs, netsrs::NetSrs}, verify::{verify_ultra_honk, verify_ultra_honk_keccak, get_ultra_honk_verification_key, get_ultra_honk_keccak_verification_key}, prove::{prove_ultra_honk, prove_ultra_honk_keccak}, utils::compute_subgroup_size};
 use acir::{FieldElement, native_types::{Witness, WitnessMap}};
 use crate::{witness, circuit};
+mod proof_utils;
 use serde_json;
 use std::path::PathBuf;
 use std::env;
@@ -58,6 +59,7 @@ fn get_circuit_path(filename: &str) -> PathBuf {
     // If all else fails, return the expected path and let the caller handle the error
     PathBuf::from(format!("circuits/target/{}", filename))
 }
+
 
 #[test]
 fn test_acir_get_circuit_size() {
