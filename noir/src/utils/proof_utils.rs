@@ -65,16 +65,17 @@ pub fn parse_proof_with_public_inputs(
 
 /// Combine proof and public inputs back into a single proof with public inputs
 pub fn combine_proof_and_public_inputs(
-    proof_with_inputs: &ProofWithPublicInputs
+    proof: Vec<u8>,
+    public_inputs: Vec<Vec<u8>>,
 ) -> Vec<u8> {
     let mut combined = Vec::new();
     
     // Add public inputs first (32 bytes each)
-    for public_input in &proof_with_inputs.public_inputs {
+    for public_input in &public_inputs {
         combined.extend_from_slice(public_input);
     }
 
-    combined.extend_from_slice(&proof_with_inputs.proof);
+    combined.extend_from_slice(&proof);
     
     combined
 }

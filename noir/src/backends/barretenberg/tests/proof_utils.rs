@@ -33,7 +33,7 @@ fn test_prove_and_verify_ultra_honk_keccak_multiplier2() {
     let proof_with_public_inputs = parse_proof_with_public_inputs(&proof, num_public_inputs).unwrap();
 
     // Combine the proof and public inputs back into a single byte vector
-    let combined_proof = combine_proof_and_public_inputs(&proof_with_public_inputs);
+    let combined_proof = combine_proof_and_public_inputs(proof_with_public_inputs.proof, proof_with_public_inputs.public_inputs);
 
     let verdict = verify_ultra_honk_keccak(combined_proof, vk, false).unwrap();
     assert_eq!(verdict, true, "Multiplier2 circuit should be valid");
