@@ -1,8 +1,4 @@
-use std::{
-    env, fs,
-    path::{Path, PathBuf},
-    process::Command,
-};
+use std::{env, fs, path::Path, process::Command};
 
 const BB_DOWNLOAD_SCRIPT: &str = include_str!("./download_bb.sh");
 const TARGET_LIST: [&str; 8] = [
@@ -68,6 +64,10 @@ fn main() {
 
     // Link the `libdeflate` static library.
     println!("cargo:rustc-link-lib=static=deflate");
+
+    if target.contains("ios") {
+        println!("cargo:rustc-link-lib=static=lmdb");
+    }
 
     // Link the C++ standard library.
     if cfg!(target_os = "macos") || cfg!(target_os = "ios") {
