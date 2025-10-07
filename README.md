@@ -65,7 +65,7 @@ use noir::{
     barretenberg::{
         prove::prove_ultra_honk_keccak,
         srs::{setup_srs_from_bytecode, setup_srs},
-        utils::get_ultra_honk_keccak_verification_key,
+        verify::get_ultra_honk_keccak_verification_key,
         verify::verify_ultra_honk_keccak,
     },
     witness::from_vec_str_to_witness_map,
