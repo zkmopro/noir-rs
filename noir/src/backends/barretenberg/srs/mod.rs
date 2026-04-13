@@ -56,13 +56,19 @@ pub fn get_srs(subgroup_size: u32, srs_path: Option<&str>) -> Srs {
     }
 }
 
-/// UltraHonk SRS point multiplier. The prover needs SRS points not just for the
-/// circuit gates but also for witness/permutation/lookup polynomials. Empirically
-/// measured as ~8x the dyadic gate count for standard UltraHonk configurations.
+/// UltraHonk SRS point multiplier applied when deriving SRS size from a raw
+/// circuit gate count. The prover needs SRS points not just for the gates but
+/// also for witness/permutation/lookup polynomials. Empirically ~8x the dyadic
+/// gate count for standard UltraHonk configurations.
 const ULTRA_HONK_SRS_MULTIPLIER: u32 = 8;
 
+/// Initialize barretenberg's SRS sized for the given circuit_size.
+///
+/// `circuit_size` is interpreted as the final desired subgroup size (no scaling
+/// applied). Callers deriving a size from gate counts should use
+/// [`setup_srs_from_bytecode`] which applies the UltraHonk overhead multiplier.
 pub fn setup_srs(circuit_size: u32, srs_path: Option<&str>) -> Result<u32, String> {
-    let subgroup_size = compute_subgroup_size(circuit_size * ULTRA_HONK_SRS_MULTIPLIER);
+    let subgroup_size = compute_subgroup_size(circuit_size);
     let srs = get_srs(subgroup_size, srs_path);
 
     api::srs_init(&srs.g1_data, srs.num_points, &srs.g2_data)?;
@@ -70,11 +76,16 @@ pub fn setup_srs(circuit_size: u32, srs_path: Option<&str>) -> Result<u32, Strin
     Ok(srs.num_points)
 }
 
+/// Initialize barretenberg's SRS sized for the circuit in the given bytecode.
+///
+/// Queries `circuit_stats` for the dyadic gate count and multiplies by the
+/// UltraHonk overhead (see [`ULTRA_HONK_SRS_MULTIPLIER`]) before calling
+/// [`setup_srs`].
 pub fn setup_srs_from_bytecode(
     circuit_bytecode: &str,
     srs_path: Option<&str>,
     recursive: bool,
 ) -> Result<u32, String> {
     let circuit_size = get_circuit_size(circuit_bytecode, recursive);
-    setup_srs(circuit_size, srs_path)
+    setup_srs(circuit_size * ULTRA_HONK_SRS_MULTIPLIER, srs_path)
 }
