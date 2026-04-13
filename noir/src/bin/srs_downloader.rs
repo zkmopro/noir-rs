@@ -1,7 +1,7 @@
 // This is a modified version of scripts/srs_downloader/src/main.rs the file from https://github.com/madztheo/noir-react-native-starter
 
-use std::path::{Path, PathBuf};
 use std::fs;
+use std::path::{Path, PathBuf};
 
 use clap::Parser;
 use noir::barretenberg::{
@@ -17,10 +17,18 @@ struct Args {
     #[clap(short, long, help = "Path to the circuit JSON manifest file.")]
     circuit_path: Option<String>,
 
-    #[clap(short, long, help = "Specific output path to save the SRS file. If not provided, saves to a default directory.")]
+    #[clap(
+        short,
+        long,
+        help = "Specific output path to save the SRS file. If not provided, saves to a default directory."
+    )]
     output_path: Option<String>,
 
-    #[clap(short, long, help = "Enable recursive mode for circuit size calculation.")]
+    #[clap(
+        short,
+        long,
+        help = "Enable recursive mode for circuit size calculation."
+    )]
     recursive: bool,
 }
 
@@ -35,12 +43,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let circuit_file_path = Path::new(path_str);
             println!("Reading circuit from: {}", circuit_file_path.display());
 
-            let manifest = fs::read(circuit_file_path).map_err(|e| format!("Failed to read circuit file {}: {}", circuit_file_path.display(), e))?;
-            let manifest_value: Value =
-                serde_json::from_slice(&manifest).map_err(|e| format!("Failed to decode JSON from {}: {}", circuit_file_path.display(), e))?;
-            let bytecode = manifest_value["bytecode"]
-                .as_str()
-                .ok_or_else(|| format!("Failed to get bytecode from {}", circuit_file_path.display()))?;
+            let manifest = fs::read(circuit_file_path).map_err(|e| {
+                format!(
+                    "Failed to read circuit file {}: {}",
+                    circuit_file_path.display(),
+                    e
+                )
+            })?;
+            let manifest_value: Value = serde_json::from_slice(&manifest).map_err(|e| {
+                format!(
+                    "Failed to decode JSON from {}: {}",
+                    circuit_file_path.display(),
+                    e
+                )
+            })?;
+            let bytecode = manifest_value["bytecode"].as_str().ok_or_else(|| {
+                format!(
+                    "Failed to get bytecode from {}",
+                    circuit_file_path.display()
+                )
+            })?;
 
             if let Some(name) = circuit_file_path.file_stem().and_then(|s| s.to_str()) {
                 circuit_name = name.to_string();
@@ -73,10 +95,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             path
         }
     };
-    
+
     if let Some(parent) = save_path_buf.parent() {
         if !parent.exists() {
-            fs::create_dir_all(parent).map_err(|e| format!("Failed to create parent directory {}: {}", parent.display(), e))?;
+            fs::create_dir_all(parent).map_err(|e| {
+                format!(
+                    "Failed to create parent directory {}: {}",
+                    parent.display(),
+                    e
+                )
+            })?;
         }
     }
 
@@ -101,7 +129,7 @@ mod tests {
             recursive: false,
         }
     }
-    
+
     #[test]
     fn test_args_parsing_defaults() {
         let args = create_args(None, None);
@@ -145,13 +173,13 @@ mod tests {
         };
         assert_eq!(args.recursive, true);
     }
-    
+
     #[test]
     fn test_save_path_default_no_circuit() {
         let args = create_args(None, None);
         let circuit_name = "default_18";
         let expected_path = PathBuf::from(DEFAULT_SRS_DIR).join(format!("{}.srs", circuit_name));
-        
+
         let save_path_buf: PathBuf = match &args.output_path {
             Some(path_str) => PathBuf::from(path_str),
             None => {
@@ -172,11 +200,16 @@ mod tests {
         writeln!(file, "{{\"bytecode\": \"0x010203\"}}").unwrap();
 
         let args = create_args(Some(dummy_circuit_path.to_str().unwrap()), None);
-        
-        let circuit_file_path = Path::new(args.circuit_path.as_ref().unwrap());
-        let circuit_name_for_path = circuit_file_path.file_stem().and_then(|s| s.to_str()).unwrap_or("default_circuit").to_string();
 
-        let expected_path = PathBuf::from(DEFAULT_SRS_DIR).join(format!("{}.srs", circuit_name_for_path));
+        let circuit_file_path = Path::new(args.circuit_path.as_ref().unwrap());
+        let circuit_name_for_path = circuit_file_path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("default_circuit")
+            .to_string();
+
+        let expected_path =
+            PathBuf::from(DEFAULT_SRS_DIR).join(format!("{}.srs", circuit_name_for_path));
 
         let save_path_buf: PathBuf = match &args.output_path {
             Some(path_str) => PathBuf::from(path_str),

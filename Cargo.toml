@@ -1,3 +1,3 @@
 [workspace]
-members = ["bb", "noir"]
+members = ["noir"]
 resolver = "2"
