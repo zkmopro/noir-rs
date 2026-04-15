@@ -3,119 +3,139 @@ name: Noir Test
 on: [push, pull_request]
 
 jobs:
-    test-aarch64:
+    # macOS build + test. Runs cargo test natively and builds macOS targets
+    # (aarch64 native, x86_64 cross-compiled from the arm64 runner).
+    test-macos:
         runs-on: macos-latest
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         steps:
             - uses: actions/checkout@v4
-            
-            # Cache Cargo registry and dependencies
+
             - name: Cache Cargo registry
               uses: actions/cache@v4
               with:
                   path: |
                       ~/.cargo/registry
                       ~/.cargo/git
-                  key: ${{ runner.os }}-aarch64-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+                  key: ${{ runner.os }}-macos-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
                   restore-keys: |
-                      ${{ runner.os }}-aarch64-cargo-registry-
-                      
-            # Cache Cargo build artifacts
+                      ${{ runner.os }}-macos-cargo-registry-
+
             - name: Cache Cargo build
               uses: actions/cache@v4
               with:
                   path: |
                       target/
-
-
                       noir/target/
-                  key: ${{ runner.os }}-aarch64-cargo-build-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/*.rs') }}
+                  key: ${{ runner.os }}-macos-cargo-build-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/*.rs') }}
                   restore-keys: |
-                      ${{ runner.os }}-aarch64-cargo-build-${{ hashFiles('**/Cargo.lock') }}-
-                      ${{ runner.os }}-aarch64-cargo-build-
-                      
-            - name: Install Rust iOS toolchain
+                      ${{ runner.os }}-macos-cargo-build-${{ hashFiles('**/Cargo.lock') }}-
+                      ${{ runner.os }}-macos-cargo-build-
+
+            - name: Install Rust toolchain (macOS targets)
               uses: dtolnay/rust-toolchain@1.89.0
               with:
                   targets: |
-                      aarch64-apple-ios
-                      aarch64-apple-ios-sim
                       aarch64-apple-darwin
-                      aarch64-linux-android
-                      
-            # Cache Nargo installation
+                      x86_64-apple-darwin
+
             - name: Cache Nargo
               uses: actions/cache@v4
               with:
                   path: |
                       ~/.nargo
-                  key: ${{ runner.os }}-aarch64-nargo-1.0.0-beta.19
+                  key: ${{ runner.os }}-macos-nargo-1.0.0-beta.19
                   restore-keys: |
-                      ${{ runner.os }}-aarch64-nargo-
-                      
+                      ${{ runner.os }}-macos-nargo-
+
             - name: Install Nargo
               uses: noir-lang/noirup@v0.1.4
               with:
                   toolchain: 1.0.0-beta.19
-                  
-            # Cache circuit artifacts
+
             - name: Cache circuit artifacts
               uses: actions/cache@v4
               with:
                   path: |
                       circuits/target/
-                  key: ${{ runner.os }}-aarch64-circuit-artifacts-${{ hashFiles('circuits/**/*.nr', 'circuits/**/*.toml') }}
+                  key: ${{ runner.os }}-macos-circuit-artifacts-${{ hashFiles('circuits/**/*.nr', 'circuits/**/*.toml') }}
                   restore-keys: |
-                      ${{ runner.os }}-aarch64-circuit-artifacts-
-                      
+                      ${{ runner.os }}-macos-circuit-artifacts-
+
             - name: Build circuits
               run: |
                   cd circuits
                   sh ./scripts/generate-bytecode-and-witness.sh product
                   sh ./scripts/generate-bytecode-and-witness.sh keccak
                   sh ./scripts/generate-bytecode-and-witness.sh keccak_large
+
             - name: Test Noir
               # sequential execution to avoid race conditions
               run: |
                   cargo test --all-features -- --test-threads=1
-            - name: Build for iOS
+
+            - name: Build for macOS (aarch64)
               run: |
-                  cargo build --target aarch64-apple-ios --features ios-build
-            - name: Build for iOS Simulator
+                  cargo build --target aarch64-apple-darwin --features barretenberg
+
+            - name: Build for macOS (x86_64, cross-compiled from arm64 runner)
               run: |
-                  cargo build --target aarch64-apple-ios-sim --features ios-build
-            - name: Build for macOS Darwin
-              run: |
-                  cargo build --target aarch64-apple-darwin --features ios-build
-            # Cache cargo-ndk installation
-            - name: Cache cargo-ndk
+                  cargo build --target x86_64-apple-darwin --features barretenberg
+
+    # iOS cross-compile. Needs a macOS runner but does not execute tests
+    # (no simulator/device). Covers iOS device (aarch64) and iOS simulator (aarch64).
+    test-ios:
+        runs-on: macos-latest
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Cache Cargo registry
               uses: actions/cache@v4
               with:
                   path: |
-                      ~/.cargo/bin/cargo-ndk
-                  key: ${{ runner.os }}-aarch64-cargo-ndk-${{ hashFiles('~/.cargo/bin/cargo-ndk') }}
+                      ~/.cargo/registry
+                      ~/.cargo/git
+                  key: ${{ runner.os }}-ios-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
                   restore-keys: |
-                      ${{ runner.os }}-aarch64-cargo-ndk-
-                      
-            - name: Install cargo-ndk
-              run: |
-                  if ! command -v cargo-ndk &> /dev/null; then
-                      cargo install cargo-ndk
-                  fi
-                  
-            - name: Build for Android
-              run: |
-                  cargo ndk -t arm64-v8a build --features android-build
+                      ${{ runner.os }}-ios-cargo-registry-
 
+            - name: Cache Cargo build
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      target/
+                      noir/target/
+                  key: ${{ runner.os }}-ios-cargo-build-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/*.rs') }}
+                  restore-keys: |
+                      ${{ runner.os }}-ios-cargo-build-${{ hashFiles('**/Cargo.lock') }}-
+                      ${{ runner.os }}-ios-cargo-build-
+
+            - name: Install Rust toolchain (iOS targets)
+              uses: dtolnay/rust-toolchain@1.89.0
+              with:
+                  targets: |
+                      aarch64-apple-ios
+                      aarch64-apple-ios-sim
+
+            - name: Build for iOS (aarch64)
+              run: |
+                  cargo build --target aarch64-apple-ios --features ios-build
+
+            - name: Build for iOS Simulator (aarch64)
+              run: |
+                  cargo build --target aarch64-apple-ios-sim --features ios-build
+
+    # Linux build + test. Runs cargo test natively and builds x86_64-unknown-linux-gnu.
     test-linux:
         runs-on: ubuntu-latest
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         steps:
             - uses: actions/checkout@v4
-            
-            # Cache Cargo registry and dependencies
+
             - name: Cache Cargo registry
               uses: actions/cache@v4
               with:
@@ -125,29 +145,24 @@ jobs:
                   key: ${{ runner.os }}-linux-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
                   restore-keys: |
                       ${{ runner.os }}-linux-cargo-registry-
-                      
-            # Cache Cargo build artifacts
+
             - name: Cache Cargo build
               uses: actions/cache@v4
               with:
                   path: |
                       target/
-
-
                       noir/target/
                   key: ${{ runner.os }}-linux-cargo-build-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/*.rs') }}
                   restore-keys: |
                       ${{ runner.os }}-linux-cargo-build-${{ hashFiles('**/Cargo.lock') }}-
                       ${{ runner.os }}-linux-cargo-build-
-                      
-            - name: Install Rust Linux toolchain
+
+            - name: Install Rust toolchain (Linux target)
               uses: dtolnay/rust-toolchain@1.89.0
               with:
                   targets: |
                       x86_64-unknown-linux-gnu
-                      x86_64-linux-android
-                      
-            # Cache Nargo installation
+
             - name: Cache Nargo
               uses: actions/cache@v4
               with:
@@ -156,13 +171,12 @@ jobs:
                   key: ${{ runner.os }}-linux-nargo-1.0.0-beta.19
                   restore-keys: |
                       ${{ runner.os }}-linux-nargo-
-                      
+
             - name: Install Nargo
               uses: noir-lang/noirup@v0.1.4
               with:
                   toolchain: 1.0.0-beta.19
-                  
-            # Cache circuit artifacts
+
             - name: Cache circuit artifacts
               uses: actions/cache@v4
               with:
@@ -171,25 +185,79 @@ jobs:
                   key: ${{ runner.os }}-linux-circuit-artifacts-${{ hashFiles('circuits/**/*.nr', 'circuits/**/*.toml') }}
                   restore-keys: |
                       ${{ runner.os }}-linux-circuit-artifacts-
-                      
+
             - name: Build circuits
               run: |
                   cd circuits
                   sh ./scripts/generate-bytecode-and-witness.sh product
                   sh ./scripts/generate-bytecode-and-witness.sh keccak
                   sh ./scripts/generate-bytecode-and-witness.sh keccak_large
-            - name: Test Noir Linux
+
+            - name: Test Noir
               # sequential execution to avoid race conditions
               run: |
                   cargo test --all-features -- --test-threads=1
-            - name: Build for Linux x86_64
+
+            - name: Build for Linux (x86_64)
               run: |
-                  cargo build --target x86_64-unknown-linux-gnu
+                  cargo build --target x86_64-unknown-linux-gnu --features barretenberg
+
+    # Android cross-compile via cargo-ndk. Runs on ubuntu for cost; does not
+    # execute tests (no emulator). Covers Android arm64 and x86_64.
+    test-android:
+        runs-on: ubuntu-latest
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Cache Cargo registry
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      ~/.cargo/registry
+                      ~/.cargo/git
+                  key: ${{ runner.os }}-android-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+                  restore-keys: |
+                      ${{ runner.os }}-android-cargo-registry-
+
+            - name: Cache Cargo build
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      target/
+                      noir/target/
+                  key: ${{ runner.os }}-android-cargo-build-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/*.rs') }}
+                  restore-keys: |
+                      ${{ runner.os }}-android-cargo-build-${{ hashFiles('**/Cargo.lock') }}-
+                      ${{ runner.os }}-android-cargo-build-
+
+            - name: Install Rust toolchain (Android targets)
+              uses: dtolnay/rust-toolchain@1.89.0
+              with:
+                  targets: |
+                      aarch64-linux-android
+                      x86_64-linux-android
+
+            - name: Cache cargo-ndk
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      ~/.cargo/bin/cargo-ndk
+                  key: ${{ runner.os }}-android-cargo-ndk-${{ hashFiles('~/.cargo/bin/cargo-ndk') }}
+                  restore-keys: |
+                      ${{ runner.os }}-android-cargo-ndk-
+
             - name: Install cargo-ndk
               run: |
                   if ! command -v cargo-ndk &> /dev/null; then
                       cargo install cargo-ndk
                   fi
-            - name: Build for Android x86_64
+
+            - name: Build for Android (arm64-v8a)
+              run: |
+                  cargo ndk -t arm64-v8a build --features android-build
+
+            - name: Build for Android (x86_64)
               run: |
                   cargo ndk -t x86_64 build --features android-build
