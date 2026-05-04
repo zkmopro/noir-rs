@@ -7,22 +7,18 @@
 ```toml
 # Cargo.toml
 [dependencies]
-noir = { git = "https://github.com/zkmopro/noir-rs", features = ["barretenberg"] }
-
-# For Android add the `android-compat` feature:
-noir = { git = "https://github.com/zkmopro/noir-rs", features = ["barretenberg", "android-compat"] }
+noir = { git = "https://github.com/zkmopro/noir-rs", features = ["barretenberg"], tag = "v1.0.0-beta.19" }
 ```
 
 ## Platform Support
 
-For details, please check released artifacts in [zkmopro/aztec-packages](https://github.com/zkmopro/aztec-packages/releases)
+The Barretenberg backend is fetched transitively via the [`barretenberg-rs`](https://crates.io/crates/barretenberg-rs) crate.
 - macOS
     - `aarch64-apple-darwin`
     - `x86_64-apple-darwin`
 - iOS
     - `aarch64‑apple‑ios`
     - `aarch64-apple-ios-sim`
-    - `x86_64-apple-ios`
 - Android
     - `aarch64‑linux‑android`
     - `x86_64-linux-android`
